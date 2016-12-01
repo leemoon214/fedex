@@ -81,6 +81,23 @@ describe Fedex::Request::Shipment do
         }.to raise_error('Missing Required Parameter account_number')
       end
     end
+    
+    context 'smartpost', :vcr do
+      let(:smartpost_details) do
+        { :indicia => "PARCEL_SELECT",
+          :ancillary_endorsement => "RETURN_SERVICE",
+          :hub_id => "5531"}
+      end
+
+      let(:options) do
+        {:shipper => shipper, :recipient => recipient, :packages => packages, :filename => filename, :service_type => "SMART_POST", :smartpost_details => smartpost_details, debug: true}
+      end
+
+      it "returns valid shipment" do
+        shipment = fedex.ship(options)
+        shipment.class.should_not == Fedex::RateError
+      end
+    end
 
   end
 end

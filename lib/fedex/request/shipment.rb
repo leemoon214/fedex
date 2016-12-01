@@ -49,6 +49,7 @@ module Fedex
           add_shipping_charges_payment(xml)
           add_special_services(xml) if @shipping_options[:return_reason] || @shipping_options[:cod] || @shipping_options[:saturday_delivery]
           add_customs_clearance(xml) if @customs_clearance_detail
+          add_smartpost_details(xml) if @smartpost_details
           add_custom_components(xml)
           xml.RateRequestTypes "ACCOUNT"
           add_packages(xml)
@@ -125,6 +126,14 @@ module Fedex
         }
       end
 
+      def add_smartpost_details(xml)
+        xml.SmartPostDetail {
+          xml.Indicia @smartpost_details[:indicia]
+          xml.AncillaryEndorsement @smartpost_details[:ancillary_endorsement]
+          xml.HubId @smartpost_details[:hub_id]
+        }
+      end
+      
       # Callback used after a failed shipment response.
       def failure_response(api_response, response)
         error_message = if response[:process_shipment_reply]

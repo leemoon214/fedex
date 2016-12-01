@@ -16,7 +16,8 @@ module Fedex
         @response_details = label_details[:process_shipment_reply]
         package_details = label_details[:process_shipment_reply][:completed_shipment_detail][:completed_package_details]
         @options = package_details[:label]
-        @options[:tracking_number] = package_details[:tracking_ids][:tracking_number]
+        trackNumbers = [package_details[:tracking_ids]].flatten.first
+        @options[:tracking_number] = trackNumbers[:tracking_number]
       end
       @options[:format] = label_details[:format]
       @options[:file_name] = label_details[:file_name]

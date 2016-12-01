@@ -68,6 +68,31 @@ module Fedex
           expect(@label).to respond_to('file_name')
         end
       end
+
+      describe "smartpost", :vcr do
+        let(:smartpost_details) do
+          { :indicia => "PARCEL_SELECT",
+            :ancillary_endorsement => "RETURN_SERVICE",
+            :hub_id => "5531"}
+        end
+
+        let(:options) do
+          { :shipper => shipper,
+            :recipient => recipient,
+            :packages => packages,
+            :service_type => "SMART_POST",
+            :label_specification => label_specification,
+            :smartpost_details => smartpost_details,
+            :filename =>  filename
+          }
+        end
+
+        it 'creates label' do
+          label = fedex.label(options)
+          expect(File).to exist(filename)
+        end
+      end
+
     end
   end
 end
