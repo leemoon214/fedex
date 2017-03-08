@@ -11,7 +11,7 @@ module Fedex
       @confirmed = options["DeliveryPointValidation"] == "CONFIRMED"
       @available = options["DeliveryPointValidation"] != "UNAVAILABLE"
 
-      @status      = options[:residential_status]
+      @status      = options["ResidentialStatus"]
       @residential = status == "RESIDENTIAL"
       @business    = status == "BUSINESS"
 
