@@ -326,6 +326,14 @@ module Fedex
         end
       end
 
+      def add_smartpost_details(xml)
+        xml.SmartPostDetail {
+          xml.Indicia @smartpost_details[:indicia]
+          xml.AncillaryEndorsement @smartpost_details[:ancillary_endorsement]
+          xml.HubId @smartpost_details[:hub_id]
+        }
+      end
+
       # Add customs clearance(for international shipments)
       def add_customs_clearance(xml)
         xml.CustomsClearanceDetail{

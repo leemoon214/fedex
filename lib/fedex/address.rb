@@ -1,24 +1,22 @@
 module Fedex
   class Address
 
-    attr_reader :changes, :score, :confirmed, :available, :status, :residential,
-                :business, :company, :street_lines, :city, :state, 
-                :province_code, :postal_code, :country_code
+    attr_reader :state, :status, :residential,
+                :business, :street_lines, :city, :state,
+                :province_code, :postal_code, :country_code, :status,
+                :attributes
 
     def initialize(options)
-      @changes   = options["Changes"]
-      @score     = options["Score"].to_i
-      @confirmed = options["DeliveryPointValidation"] == "CONFIRMED"
-      @available = options["DeliveryPointValidation"] != "UNAVAILABLE"
+      @state         = options["State"]
+      @attributes    = options["Attributes"]
 
-      @status      = options["ResidentialStatus"]
+      @status      = options["Classification"]
       @residential = status == "RESIDENTIAL"
       @business    = status == "BUSINESS"
 
-      address        = options["Address"]
+      address        = options["EffectiveAddress"]
 
-      @company       = options["CompanyName"]
-      @street_lines  = address["StreetLines"]
+      @street_lines  = [address["StreetLines"]].flatten
       @city          = address["City"]
       @state         = address["StateOrProvinceCode"]
       @province_code = address["StateOrProvinceCode"]

@@ -19,7 +19,7 @@ module Fedex
         #response = parse_response(api_response)
         response = api_response
         if success?(response)
-          options = response["AddressValidationReply"]["AddressResults"]["ProposedAddressDetails"]
+          options = response["AddressValidationReply"]["AddressResults"]
           options = options.first if options.is_a? Array
           Fedex::Address.new(options)
         else
@@ -42,7 +42,7 @@ module Fedex
             add_client_detail(xml)
             add_version(xml)
             add_request_timestamp(xml)
-            add_address_validation_options(xml)
+            #add_address_validation_options(xml)
             add_address_to_validate(xml)
           }
         end
@@ -59,7 +59,7 @@ module Fedex
                      (timestamp.gmt_offset / 60).abs.divmod(60)
         timestamp  = timestamp.strftime("%Y-%m-%dT%H:%M:%S") + utc_offest
 
-        xml.RequestTimestamp timestamp
+        xml.InEffectAsOfTimestamp timestamp
       end
 
       def add_address_validation_options(xml)
@@ -70,7 +70,9 @@ module Fedex
 
       def add_address_to_validate(xml)
         xml.AddressesToValidate{
-          xml.CompanyName           @address[:company] unless @address[:company].nil? or @address[:company].empty?
+          xml.Contact{
+            xml.CompanyName           @address[:company] unless @address[:company].nil? or @address[:company].empty?
+          }
           xml.Address{
             Array(@address[:address]).take(2).each do |address_line|
               xml.StreetLines address_line
@@ -84,7 +86,7 @@ module Fedex
       end
 
       def service
-        { :id => 'aval', :version => 2 }
+        { :id => 'aval', :version => 4 }
       end
 
       # Successful request

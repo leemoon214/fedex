@@ -126,21 +126,13 @@ module Fedex
         }
       end
 
-      def add_smartpost_details(xml)
-        xml.SmartPostDetail {
-          xml.Indicia @smartpost_details[:indicia]
-          xml.AncillaryEndorsement @smartpost_details[:ancillary_endorsement]
-          xml.HubId @smartpost_details[:hub_id]
-        }
-      end
-      
       # Callback used after a failed shipment response.
       def failure_response(api_response, response)
         error_message = if response[:process_shipment_reply]
           [response[:process_shipment_reply][:notifications]].flatten.first[:message]
         else
-          "#{api_response["Fault"]["detail"]["fault"]["reason"]}\n--#{api_response["Fault"]["detail"]["fault"]["details"]["ValidationFailureDetail"]["message"].join("\n--")}"
-        end rescue $1
+           "#{api_response["Fault"]["detail"]["cause"]}\n--#{api_response["Fault"]["detail"]["desc"]}"
+        end
         raise RateError, error_message
       end
 

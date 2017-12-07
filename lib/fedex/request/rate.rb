@@ -13,7 +13,10 @@ module Fedex
           rate_reply_details = [rate_reply_details] if rate_reply_details.is_a?(Hash)
 
           rate_reply_details.map do |rate_reply|
-            rate_details = [rate_reply[:rated_shipment_details]].flatten.first[:shipment_rate_detail]
+            rate_details = {}
+            account_rate = rate_reply[:rated_shipment_details].select{|r| r[:shipment_rate_detail][:rate_type] == 'PAYOR_ACCOUNT_SHIPMENT'}.first || rate_reply[:rated_shipment_details].select{|r| r[:shipment_rate_detail][:rate_type] == 'PAYOR_ACCOUNT_PACKAGE'}.first
+            rate_details[:account] = account_rate[:shipment_rate_detail]
+            rate_details[:list] = rate_reply[:rated_shipment_details].select{|r| r[:shipment_rate_detail][:rate_type] == 'PAYOR_LIST_PACKAGE'}.first[:shipment_rate_detail]
             rate_details.merge!(service_type: rate_reply[:service_type])
             rate_details.merge!(transit_time: rate_reply[:transit_time])
             Fedex::Rate.new(rate_details)
@@ -40,7 +43,8 @@ module Fedex
           add_recipient(xml)
           add_shipping_charges_payment(xml)
           add_customs_clearance(xml) if @customs_clearance_detail
-          xml.RateRequestTypes "ACCOUNT"
+          xml.RateRequestTypes "LIST"
+          add_smartpost_details(xml) if @smartpost_details
           add_packages(xml)
         }
       end
