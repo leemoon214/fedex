@@ -25,7 +25,7 @@ module Fedex
           end
         else
           error_message = if response[:rate_reply]
-            [response[:rate_reply][:notifications]].flatten.first[:message]
+            [response[:rate_reply][:notifications]].flatten.first[:message_parameters][:value]
           else
             "#{api_response["CSRError"]["code"]}\n--#{api_response["CSRError"]["message"]}"
           end
