@@ -28,7 +28,7 @@ module Fedex
             [response[:rate_reply][:notifications]].flatten.first[:message_parameters][:value]
           else
             "#{api_response["Fault"]["detail"]["fault"]["reason"]}\n--#{api_response["Fault"]["detail"]["fault"]["details"]["ValidationFailureDetail"]["message"].join("\n--")}"
-          end
+          end rescue $1
           raise RateError, error_message
         end
       end
