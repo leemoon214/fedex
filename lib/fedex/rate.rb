@@ -38,27 +38,27 @@ module Fedex
       @transit_time = options[:transit_time]
       account = options[:account]
       list = options[:list]
-      @rate_zone = account[:rate_zone]
-      @total_billing_weight = "#{account[:total_billing_weight][:value]} #{account[:total_billing_weight][:units]}"
+      @rate_zone = account["RateZone"]
+      @total_billing_weight = "#{account["TotalBillingWeight"]["Value"]} #{account["TotalBillingWeight"]["Units"]}"
 
-      @account_total_base_charge = account[:total_base_charge][:amount]
-      @account_total_freight_discounts = account[:total_freight_discounts][:amount]
-      @account_total_taxes = account[:total_taxes][:amount]
-      @account_total_surcharges = account[:total_surcharges][:amount]
-      @account_total_rebates = (account[:total_rebates] || {})[:amount]
-      @account_total_net_charge = account[:total_net_charge][:amount]
-      @account_total_net_fedex_charge = (account[:total_net_fe_dex_charge] || {})[:amount]
-      @account_total_net_freight = account[:total_net_freight][:amount]
+      @account_total_base_charge = account["TotalBaseCharge"]["Amount"]
+      @account_total_freight_discounts = account["TotalFreightDiscounts"]["Amount"]
+      @account_total_taxes = account["TotalTaxes"]["Amount"]
+      @account_total_surcharges = account["TotalSurcharges"]["Amount"]
+      @account_total_rebates = (account["TotalRebates"] || {})["Amount"]
+      @account_total_net_charge = account["TotalNetCharge"]["Amount"]
+      @account_total_net_fedex_charge = (account["TotalNetFeDexCharge"] || {})["Amount"]
+      @account_total_net_freight = account["TotalNetFreight"]["Amount"]
 
       unless list.nil?
-        @list_total_base_charge = list[:total_base_charge][:amount]
-        @list_total_freight_discounts = list[:total_freight_discounts][:amount]
-        @list_total_taxes = list[:total_taxes][:amount]
-        @list_total_surcharges = list[:total_surcharges][:amount]
-        @list_total_rebates = (list[:total_rebates] || {})[:amount]
-        @list_total_net_charge = list[:total_net_charge][:amount]
-        @list_total_net_fedex_charge = (list[:total_net_fe_dex_charge] || {})[:amount]
-        @list_total_net_freight = list[:total_net_freight][:amount]
+        @list_total_base_charge = list["TotalBaseCharge"]["Amount"]
+        @list_total_freight_discounts = list["TotalFreightDiscounts"]["Amount"]
+        @list_total_taxes = list["TotalTaxes"]["Amount"]
+        @list_total_surcharges = list["TotalSurcharges"]["Amount"]
+        @list_total_rebates = (list["TotalRebates"] || {})["Amount"]
+        @list_total_net_charge = list["TotalNetCharge"]["Amount"]
+        @list_total_net_fedex_charge = (list["TotalNetFeDexCharge"] || {})["Amount"]
+        @list_total_net_freight = list["TotalNetFreight"]["Amount"]
       end
     end
   end

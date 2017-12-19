@@ -7,28 +7,30 @@ module Fedex
       def process_request
         api_response = self.class.post(api_url, :body => build_xml)
         puts api_response if @debug
-        response = parse_response(api_response)
+        #response = parse_response(api_response)
+        response = api_response
         if success?(response)
-          rate_reply_details = response[:rate_reply][:rate_reply_details] || []
+          rate_reply_details = response["RateReply"]["RateReplyDetails"] || []
           rate_reply_details = [rate_reply_details] if rate_reply_details.is_a?(Hash)
 
           rate_reply_details.map do |rate_reply|
             rate_details = {}
-            rated_shipment_details = [rate_reply[:rated_shipment_details]].flatten
-            account_rate = rated_shipment_details.select{|r| r[:shipment_rate_detail][:rate_type] == 'PAYOR_ACCOUNT_SHIPMENT'}.first || rated_shipment_details.select{|r| r[:shipment_rate_detail][:rate_type] == 'PAYOR_ACCOUNT_PACKAGE'}.first
-            rate_details[:account] = account_rate[:shipment_rate_detail]
-            list_rate = rated_shipment_details.select{|r| r[:shipment_rate_detail][:rate_type] == 'PAYOR_LIST_PACKAGE'}.first
-            rate_details[:list] = list_rate[:shipment_rate_detail] unless list_rate.nil?
-            rate_details.merge!(service_type: rate_reply[:service_type])
-            rate_details.merge!(transit_time: rate_reply[:transit_time])
+            rated_shipment_details = [rate_reply["RatedShipmentDetails"]].flatten
+            account_rate = rated_shipment_details.select{|r| r["ShipmentRateDetail"]["RateType"] == 'PAYOR_ACCOUNT_SHIPMENT'}.first || rated_shipment_details.select{|r| r["ShipmentRateDetail"]["RateType"] == 'PAYOR_ACCOUNT_PACKAGE'}.first
+            rate_details[:account] = account_rate["ShipmentRateDetail"]
+            list_rate = rated_shipment_details.select{|r| r["ShipmentRateDetail"]["RateType"] == 'PAYOR_LIST_PACKAGE'}.first
+            rate_details[:list] = list_rate["ShipmentRateDetail"] unless list_rate.nil?
+            rate_details.merge!(service_type: rate_reply["ServiceType"])
+            rate_details.merge!(transit_time: rate_reply["TransitTime"])
             Fedex::Rate.new(rate_details)
           end
         else
-          error_message = if response[:rate_reply]
-            [response[:rate_reply][:notifications]].flatten.first[:message_parameters][:value]
+          error_message = if response["RateReply"]
+            [response["RateReply"]["Notifications"]].flatten.first["MessageParameters"]["Value"]
           else
-            "#{api_response["Fault"]["detail"]["fault"]["reason"]}\n--#{api_response["Fault"]["detail"]["fault"]["details"]["ValidationFailureDetail"]["message"].join("\n--")}"
-          end rescue $1
+            #"#{api_response["Fault"]["detail"]["fault"]["reason"]}\n--#{api_response["Fault"]["detail"]["fault"]["details"]["ValidationFailureDetail"]["message"].join("\n--")}"
+            "#{api_response["CSRError"]["code"]}\n--#{api_response["CSRError"]["message"]}"
+          end
           raise RateError, error_message
         end
       end
@@ -77,8 +79,8 @@ module Fedex
 
       # Successful request
       def success?(response)
-        response[:rate_reply] &&
-          %w{SUCCESS WARNING NOTE}.include?(response[:rate_reply][:highest_severity])
+        response["RateReply"] &&
+          %w{SUCCESS WARNING NOTE}.include?(response["RateReply"]["HighestSeverity"])
       end
 
     end

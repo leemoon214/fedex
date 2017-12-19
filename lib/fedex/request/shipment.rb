@@ -25,7 +25,8 @@ module Fedex
       def process_request
         api_response = self.class.post api_url, :body => build_xml
         puts api_response if @debug
-        response = parse_response(api_response)
+        #response = parse_response(api_response)
+        response = api_response
         if success?(response)
           success_response(api_response, response)
         else
@@ -128,8 +129,8 @@ module Fedex
 
       # Callback used after a failed shipment response.
       def failure_response(api_response, response)
-        error_message = if response[:process_shipment_reply]
-          [response[:process_shipment_reply][:notifications]].flatten.first[:message]
+        error_message = if response["ProcessShipmentReply"]
+          [response["ProcessShipmentReply"]["Notifications"]].flatten.first["Message"]
         else
            "#{api_response["Fault"]["detail"]["cause"]}\n--#{api_response["Fault"]["detail"]["desc"]}"
         end
@@ -138,7 +139,7 @@ module Fedex
 
       # Callback used after a successful shipment response.
       def success_response(api_response, response)
-        @response_details = response[:process_shipment_reply]
+        @response_details = response["ProcessShipmentReply"]
       end
 
       # Build xml Fedex Web Service request
@@ -160,8 +161,8 @@ module Fedex
 
       # Successful request
       def success?(response)
-        response[:process_shipment_reply] &&
-          %w{SUCCESS WARNING NOTE}.include?(response[:process_shipment_reply][:highest_severity])
+        response["ProcessShipmentReply"] &&
+          %w{SUCCESS WARNING NOTE}.include?(response["ProcessShipmentReply"]["HighestSeverity"])
       end
 
     end

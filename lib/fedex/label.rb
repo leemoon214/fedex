@@ -10,18 +10,18 @@ module Fedex
     def initialize(label_details = {}, associated_shipments = false)
       if associated_shipments
         package_details = label_details
-        @options = package_details[:label]
-        @options[:tracking_number] = package_details[:tracking_id]
+        @options = package_details["Label"]
+        @options[:tracking_number] = package_details["TrackingId"]
       else
-        @response_details = label_details[:process_shipment_reply]
-        package_details = label_details[:process_shipment_reply][:completed_shipment_detail][:completed_package_details]
-        @options = package_details[:label]
-        trackNumbers = [package_details[:tracking_ids]].flatten.first
-        @options[:tracking_number] = trackNumbers[:tracking_number]
+        @response_details = label_details["ProcessShipmentReply"]
+        package_details = label_details["ProcessShipmentReply"]["CompletedShipmentDetail"]["CompletedPackageDetails"]
+        @options = package_details["Label"]
+        trackNumbers = [package_details["TrackingIds"]].flatten.first
+        @options[:tracking_number] = trackNumbers["TrackingNumber"]
       end
       @options[:format] = label_details[:format]
       @options[:file_name] = label_details[:file_name]
-      @image = Base64.decode64(options[:parts][:image]) if has_image?
+      @image = Base64.decode64(options["Parts"]["Image"]) if has_image?
 
       if file_name = @options[:file_name]
         save(file_name, false)
@@ -45,7 +45,7 @@ module Fedex
     end
 
     def has_image?
-      options[:parts] && options[:parts][:image]
+      options["Parts"] && options["Parts"]["Image"]
     end
 
     def save(path, append_name = true)
@@ -60,7 +60,7 @@ module Fedex
     end
 
     def associated_shipments
-      if (label_details = @response_details[:completed_shipment_detail][:associated_shipments])
+      if (label_details = @response_details["CompletedShipmentDetail"]["AssociatedShipments"])
         label_details[:format] = format
         label_details[:file_name] = file_name
         Label.new(label_details, true)
