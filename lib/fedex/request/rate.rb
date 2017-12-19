@@ -27,7 +27,7 @@ module Fedex
           error_message = if response[:rate_reply]
             [response[:rate_reply][:notifications]].flatten.first[:message_parameters][:value]
           else
-            "#{api_response["CSRError"]["code"]}\n--#{api_response["CSRError"]["message"]}"
+            "#{api_response["Fault"]["detail"]["fault"]["reason"]}\n--#{api_response["Fault"]["detail"]["fault"]["details"]["ValidationFailureDetail"]["message"].join("\n--")}"
           end
           raise RateError, error_message
         end
