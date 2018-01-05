@@ -26,7 +26,7 @@ module Fedex
           end
         else
           error_message = if response["RateReply"]
-            [response["RateReply"]["Notifications"]].flatten.first["MessageParameters"]["Value"]
+            [response["RateReply"]["Notifications"]].flatten.first["Message"]
           else
             #"#{api_response["Fault"]["detail"]["fault"]["reason"]}\n--#{api_response["Fault"]["detail"]["fault"]["details"]["ValidationFailureDetail"]["message"].join("\n--")}"
             "#{api_response["CSRError"]["code"]}\n--#{api_response["CSRError"]["message"]}"
